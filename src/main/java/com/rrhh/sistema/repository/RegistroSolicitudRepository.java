@@ -11,6 +11,9 @@ import java.util.List;
 public interface RegistroSolicitudRepository extends JpaRepository<RegistroSolicitud,Long> {
 
     // Buscar todas las solicitudes de un usuario específico ordenadas por fecha y hora descendente
+    List<RegistroSolicitud> findByUsuarioUsernameOrderByFechaHoraDesc(String username);
+
+    // Buscar todas las solicitudes de un usuario específico ordenadas por fecha y hora descendente
     List<RegistroSolicitud> findByUsuarioIdOrderByFechaHoraDesc(Long usuarioId);
 
     // Contar cuántas solicitudes ha hecho un usuario específico
