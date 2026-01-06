@@ -35,4 +35,10 @@ public interface RegistroSolicitudRepository extends JpaRepository<RegistroSolic
            "FROM RegistroSolicitud r " +
            "GROUP BY r.tipoServicio.nombreServicio")
     List<Object[]> contarSolicitudesGlobales();
+
+    // Buscar por nombre de servicio (Ej: "Boletas") ordenado por fecha
+    List<RegistroSolicitud> findByTipoServicioNombreServicioOrderByFechaHoraDesc(String nombreServicio);
+
+    // Agrega esto en la interfaz
+    List<RegistroSolicitud> findAllByOrderByFechaHoraDesc();
 }
