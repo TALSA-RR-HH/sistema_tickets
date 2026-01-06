@@ -1,10 +1,13 @@
 package com.rrhh.sistema.controller;
 
+import com.rrhh.sistema.dto.UsuarioDTO;
 import com.rrhh.sistema.model.Usuario;
 import com.rrhh.sistema.service.UsuarioService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/usuarios")
@@ -15,26 +18,25 @@ public class UsuarioController {
     private final UsuarioService usuarioService;
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody Usuario usuarioLogin) {
-        try {
-            // Buscamos al usuario en la BD
-            Usuario usuarioEncontrado = usuarioService.buscarPorUsername(usuarioLogin.getUsername());
+    public ResponseEntity<?> login(@RequestBody Map<String, String> body) {
+        String username = body.get("username");
+        String password = body.get("password");
 
-            // Verificamos la contraseña (comparación simple por ahora)
-            if (usuarioEncontrado.getPassword().equals(usuarioLogin.getPassword())) {
-                // Si coincide, devolvemos el usuario completo (para que el Frontend sepa si es ADMIN o USER)
-                return ResponseEntity.ok(usuarioEncontrado);
-            } else {
-                return ResponseEntity.status(401).body("Contraseña incorrecta");
-            }
+        try {
+            // Llamamos al servicio que devuelve el DTO limpio
+            UsuarioDTO usuarioDto = usuarioService.login(username, password);
+            return ResponseEntity.ok(usuarioDto);
         } catch (RuntimeException e) {
-            return ResponseEntity.status(404).body("Usuario no encontrado");
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
     }
 
     @PostMapping("/registrar")
-    public ResponseEntity<Usuario> registrarUsuario(@RequestBody Usuario usuario) {
-        Usuario nuevoUsuario = usuarioService.guardarUsuario(usuario);
-        return ResponseEntity.ok(nuevoUsuario);
+    public ResponseEntity<?> registrar(@RequestBody Usuario usuario) {
+        try {
+            return ResponseEntity.ok(usuarioService.guardarUsuario(usuario));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Error: " + e.getMessage());
+        }
     }
 }

@@ -1,5 +1,6 @@
 package com.rrhh.sistema.service;
 
+import com.rrhh.sistema.dto.UsuarioDTO;
 import com.rrhh.sistema.model.Usuario;
 import com.rrhh.sistema.repository.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
@@ -44,5 +45,28 @@ public class UsuarioService {
         Usuario u = buscarPorUsername(username); // Reutilizamos el método de arriba
         u.setPassword(nuevaPassword);
         usuarioRepository.save(u);
+    }
+
+    public UsuarioDTO login(String username, String password) {
+        // 1. Buscamos (reutilizamos tu lógica de búsqueda)
+        Usuario usuario = buscarPorUsername(username);
+
+        // 2. Validamos la contraseña
+        if (!usuario.getPassword().equals(password)) {
+            throw new RuntimeException("Contraseña incorrecta");
+        }
+
+        // 3. Validamos si está activo
+        if (!usuario.getActivo()) {
+            throw new RuntimeException("El usuario está inactivo, contacte a RRHH");
+        }
+
+        // 4. Convertimos a DTO (Aquí quitamos el password)
+        return new UsuarioDTO(
+                usuario.getId(),
+                usuario.getUsername(),
+                usuario.getNombreCompleto(),
+                usuario.getRol()
+        );
     }
 }

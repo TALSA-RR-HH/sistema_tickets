@@ -1,5 +1,7 @@
 package com.rrhh.sistema.controller;
 
+import com.rrhh.sistema.dto.ReporteDTO;
+import com.rrhh.sistema.dto.SolicitudDTO;
 import com.rrhh.sistema.model.RegistroSolicitud;
 import com.rrhh.sistema.service.RegistroSolicitudService;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +21,7 @@ public class SolicitudController {
     @PostMapping    // POST /api/solicitudes?username=12345678&servicioId=1
     public ResponseEntity<?> crearSolicitud(@RequestParam String username, @RequestParam Long servicioId) {
         try {
-            RegistroSolicitud nuevaSolicitud = solicitudService.registrarSolicitud(username, servicioId);
+            SolicitudDTO nuevaSolicitud = solicitudService.registrarSolicitud(username, servicioId);
             return ResponseEntity.ok(nuevaSolicitud);
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
@@ -27,8 +29,8 @@ public class SolicitudController {
     }
 
     @GetMapping("/historial")   // GET /api/solicitudes/historial?username=12345678
-    public ResponseEntity<List<RegistroSolicitud>> verHistorial(@RequestParam String username) {
-        List<RegistroSolicitud> historial = solicitudService.listarPorUsuario(username);
+    public ResponseEntity<List<SolicitudDTO>> verHistorial(@RequestParam String username) {
+        List<SolicitudDTO> historial = solicitudService.listarPorUsuario(username);
         return ResponseEntity.ok(historial);
     }
 
@@ -38,7 +40,7 @@ public class SolicitudController {
     }
 
     @GetMapping("/reporte-usuario") // GET /api/solicitudes/reporte-usuario?username=12345678
-    public ResponseEntity<List<Object[]>> verReporteUsuario(@RequestParam String username) {
+    public ResponseEntity<List<ReporteDTO>> verReporteUsuario(@RequestParam String username) {
         return ResponseEntity.ok(solicitudService.obtenerEstadisticasPorUsuario(username));
     }
 }
