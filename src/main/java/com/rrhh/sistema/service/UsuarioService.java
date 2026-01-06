@@ -4,6 +4,7 @@ import com.rrhh.sistema.dto.UsuarioDTO;
 import com.rrhh.sistema.model.Usuario;
 import com.rrhh.sistema.repository.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -13,22 +14,32 @@ import java.util.Optional;
 public class UsuarioService {
 
     private final UsuarioRepository usuarioRepository;
+    private final PasswordEncoder passwordEncoder;
 
     // Guardar o actualizar un usuario
     public Usuario guardarUsuario(Usuario usuario) {
         Optional<Usuario> usuarioExistente = usuarioRepository.findByUsername(usuario.getUsername());
 
         if (usuarioExistente.isPresent()) {
-            // SI EXISTE: Actualizamos datos
             Usuario u = usuarioExistente.get();
             u.setNombreCompleto(usuario.getNombreCompleto());
             u.setRol(usuario.getRol());
             u.setActivo(true);
             return usuarioRepository.save(u);
         } else {
-            // SI ES NUEVO
-            if (usuario.getPassword() == null || usuario.getPassword().isEmpty()) {
-                usuario.setPassword(usuario.getUsername());
+            // USUARIO NUEVO
+            String rawPassword = usuario.getPassword();
+
+            // Si no hay contraseña, usamos el username (DNI)
+            if (rawPassword == null || rawPassword.isEmpty()) {
+                rawPassword = usuario.getUsername();
+            }
+
+            // ENCRIPTAR LA CONTRASEÑA ANTES DE GUARDAR
+            usuario.setPassword(passwordEncoder.encode(rawPassword));
+
+            if (usuario.getActivo() == null) {
+                usuario.setActivo(true);
             }
             return usuarioRepository.save(usuario);
         }
@@ -42,26 +53,23 @@ public class UsuarioService {
 
     // Cambiar la contraseña de un usuario
     public void cambiarContrasena(String username, String nuevaPassword) {
-        Usuario u = buscarPorUsername(username); // Reutilizamos el método de arriba
-        u.setPassword(nuevaPassword);
+        Usuario u = buscarPorUsername(username);
+        // Encriptamos antes de guardar
+        u.setPassword(passwordEncoder.encode(nuevaPassword));
         usuarioRepository.save(u);
     }
 
     public UsuarioDTO login(String username, String password) {
-        // 1. Buscamos (reutilizamos tu lógica de búsqueda)
         Usuario usuario = buscarPorUsername(username);
 
-        // 2. Validamos la contraseña
-        if (!usuario.getPassword().equals(password)) {
+        if (!passwordEncoder.matches(password, usuario.getPassword())) {
             throw new RuntimeException("Contraseña incorrecta");
         }
 
-        // 3. Validamos si está activo
         if (!usuario.getActivo()) {
-            throw new RuntimeException("El usuario está inactivo, contacte a RRHH");
+            throw new RuntimeException("El usuario está inactivo. Contacte a RRHH.");
         }
 
-        // 4. Convertimos a DTO (Aquí quitamos el password)
         return new UsuarioDTO(
                 usuario.getId(),
                 usuario.getUsername(),

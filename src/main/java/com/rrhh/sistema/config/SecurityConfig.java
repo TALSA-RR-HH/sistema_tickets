@@ -4,6 +4,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
@@ -13,13 +15,18 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-                // Desactivamos CSRF (necesario para que funcionen los POST desde Postman)
                 .csrf(csrf -> csrf.disable())
-                // Permitimos entrar a TODAS las URLs sin login de Spring (usaremos el nuestro)
                 .authorizeHttpRequests(auth -> auth
                         .anyRequest().permitAll()
                 );
 
         return http.build();
+    }
+
+    // --- AGREGA ESTE BEAN ---
+    // Esto pone disponible la herramienta de encriptación para que la usemos en el Service
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
     }
 }
