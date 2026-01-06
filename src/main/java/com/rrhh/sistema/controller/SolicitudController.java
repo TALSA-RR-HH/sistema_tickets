@@ -42,4 +42,14 @@ public class SolicitudController {
     public ResponseEntity<List<ReporteDTO>> verReporteUsuario(@RequestParam String username) {
         return ResponseEntity.ok(solicitudService.obtenerEstadisticasPorUsuario(username));
     }
+
+    @GetMapping("/por-servicio") // GET /api/solicitudes/por-servicio?nombre=Boletas
+    public ResponseEntity<List<SolicitudDTO>> verReportePorServicio(@RequestParam String nombre) {
+        return ResponseEntity.ok(solicitudService.listarPorTipoServicio(nombre));
+    }
+
+    @GetMapping // GET /api/solicitudes (Sin parámetros devuelve todo)
+    public ResponseEntity<List<SolicitudDTO>> listarTodas() {
+        return ResponseEntity.ok(solicitudService.listarTodas());
+    }
 }

@@ -73,6 +73,33 @@ public class RegistroSolicitudService {
                 .collect(Collectors.toList());
     }
 
+    // 5. REPORTE FILTRADO POR SERVICIO
+    public List<SolicitudDTO> listarPorTipoServicio(String nombreServicio) {
+        return registroRepository.findByTipoServicioNombreServicioOrderByFechaHoraDesc(nombreServicio)
+                .stream()
+                .map(registro -> new SolicitudDTO(
+                        registro.getId(),
+                        registro.getUsuario().getNombreCompleto(),
+                        registro.getUsuario().getUsername(),
+                        registro.getTipoServicio().getNombreServicio(),
+                        registro.getFechaHora()
+                ))
+                .collect(Collectors.toList());
+    }
+
+    // Nuevo método: Listar TODO
+    public List<SolicitudDTO> listarTodas() {
+        return registroRepository.findAllByOrderByFechaHoraDesc().stream()
+                .map(r -> new SolicitudDTO(
+                        r.getId(),
+                        r.getUsuario().getNombreCompleto(),
+                        r.getUsuario().getUsername(),
+                        r.getTipoServicio().getNombreServicio(),
+                        r.getFechaHora()
+                ))
+                .collect(Collectors.toList());
+    }
+
     /* Otras funciones útiles:
     // Permite al empleado filtrar su historial (Ej: Ver solo "Boletas")
     public List<RegistroSolicitud> listarPorUsuarioYServicio(String username, String nombreServicio) {
