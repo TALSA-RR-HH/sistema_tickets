@@ -29,5 +29,5 @@ public class Usuario {
     @Column(nullable = false)
     private Rol rol;  // ROLE_USER o ROLE_ADMIN
 
-    private boolean activo = true;  // Por defecto, el usuario está activo
+    private Boolean activo = true;  // Por defecto, el usuario está activo
 }
